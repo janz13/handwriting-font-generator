@@ -286,7 +286,10 @@ def build_ttf(
             svg_name = png_name.replace('.png', '.svg')
             svg_path = os.path.join(svg_dir, svg_name)
             try:
-                png_to_svg(png_path, svg_path, potrace_path=potrace_path, normalize=normalize)
+                # Normalize strokes for alphabet (thick letters) but NOT for symbols,
+                # where a 2x2 opening kernel can erase thin horizontal bars like '='.
+                do_normalize = normalize and (mode == "alphabet")
+                png_to_svg(png_path, svg_path, potrace_path=potrace_path, normalize=do_normalize)
                 processed += 1
                 print(f"  [ok]   {png_name} -> {svg_name}")
             except Exception as exc:
