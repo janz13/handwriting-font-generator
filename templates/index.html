@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Handwriting Font Generator</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Handwriting Font Generator</h1>
+            <p class="subtitle">Turn your handwriting into a real TrueType font</p>
+        </header>
+
+        <main>
+            <!-- Alphabet + Numbers Section -->
+            <section class="card mode-section" id="alphabetSection">
+                <h2>Alphabet & Numbers</h2>
+                <p>62 characters: A–Z, a–z, 0–9</p>
+
+                <a href="/api/template" class="btn btn-secondary" download>
+                    Download Alphabet Template
+                </a>
+
+                <div class="upload-zone" id="dropZoneAlpha">
+                    <input type="file" id="fileInputAlpha" accept="image/*" hidden>
+                    <div class="upload-prompt">
+                        <p><strong>Click to choose</strong> or drag & drop your scanned alphabet template</p>
+                        <p class="hint">PNG, JPG, BMP, TIFF up to 32 MB</p>
+                    </div>
+                    <div class="upload-preview hidden" id="previewContainerAlpha">
+                        <img id="previewImageAlpha" alt="Preview">
+                        <button class="btn btn-small btn-remove" id="removeFileAlpha" title="Remove">&times;</button>
+                    </div>
+                </div>
+
+                <button class="btn btn-primary" id="generateBtnAlpha" disabled>
+                    <span class="btn-text">Generate Alphabet Font</span>
+                    <span class="spinner hidden"></span>
+                </button>
+
+                <div class="results hidden" id="resultsCardAlpha">
+                    <div class="status-message" id="statusMessageAlpha"></div>
+                    <div class="preview-area">
+                        <h3>Font Preview</h3>
+                        <img id="fontPreviewAlpha" alt="Font preview" class="preview-img">
+                    </div>
+                    <div class="preview-area">
+                        <h3>Extraction Verification</h3>
+                        <img id="verifyPreviewAlpha" alt="Extraction verification" class="preview-img">
+                    </div>
+                    <div class="actions">
+                        <a href="#" class="btn btn-primary" id="downloadLinkAlpha" download="MyHandwriting.ttf">
+                            Download MyHandwriting.ttf
+                        </a>
+                    </div>
+                </div>
+
+                <div class="error-card hidden" id="errorCardAlpha">
+                    <pre class="error-text" id="errorTextAlpha"></pre>
+                    <button class="btn btn-secondary retry-btn" data-mode="alphabet">Try Again</button>
+                </div>
+            </section>
+
+            <!-- Symbols Section -->
+            <section class="card mode-section" id="symbolsSection">
+                <h2>Symbols</h2>
+                <p>32 characters: ` ~ ! @ # $ % ^ &amp; * ( ) - _ + = [ ] { } | \ ; : ' " , . &lt; &gt; / ?</p>
+
+                <a href="/api/template/symbols" class="btn btn-secondary" download>
+                    Download Symbol Template
+                </a>
+
+                <div class="upload-zone" id="dropZoneSym">
+                    <input type="file" id="fileInputSym" accept="image/*" hidden>
+                    <div class="upload-prompt">
+                        <p><strong>Click to choose</strong> or drag & drop your scanned symbol template</p>
+                        <p class="hint">PNG, JPG, BMP, TIFF up to 32 MB</p>
+                    </div>
+                    <div class="upload-preview hidden" id="previewContainerSym">
+                        <img id="previewImageSym" alt="Preview">
+                        <button class="btn btn-small btn-remove" id="removeFileSym" title="Remove">&times;</button>
+                    </div>
+                </div>
+
+                <button class="btn btn-primary" id="generateBtnSym" disabled>
+                    <span class="btn-text">Generate Symbol Font</span>
+                    <span class="spinner hidden"></span>
+                </button>
+
+                <div class="results hidden" id="resultsCardSym">
+                    <div class="status-message" id="statusMessageSym"></div>
+                    <div class="preview-area">
+                        <h3>Font Preview</h3>
+                        <img id="fontPreviewSym" alt="Font preview" class="preview-img">
+                    </div>
+                    <div class="preview-area">
+                        <h3>Extraction Verification</h3>
+                        <img id="verifyPreviewSym" alt="Extraction verification" class="preview-img">
+                    </div>
+                    <div class="actions">
+                        <a href="#" class="btn btn-primary" id="downloadLinkSym" download="MyHandwriting_Symbols.ttf">
+                            Download MyHandwriting_Symbols.ttf
+                        </a>
+                    </div>
+                </div>
+
+                <div class="error-card hidden" id="errorCardSym">
+                    <pre class="error-text" id="errorTextSym"></pre>
+                    <button class="btn btn-secondary retry-btn" data-mode="symbols">Try Again</button>
+                </div>
+            </section>
+
+            <!-- Combined Font Section -->
+            <section class="card mode-section" id="combineSection">
+                <h2>Combined Font</h2>
+                <p id="combineHint">Upload both templates above to unlock the combined font.</p>
+                <button class="btn btn-primary" id="combineBtn" disabled>
+                    <span class="btn-text">Download Combined Font</span>
+                    <span class="spinner hidden"></span>
+                </button>
+                <div class="error-card hidden" id="errorCardCombine">
+                    <pre class="error-text" id="errorTextCombine"></pre>
+                </div>
+            </section>
+        </main>
+
+        <footer>
+            <p>Pipeline: OpenCV grid detection &rarr; potrace tracing &rarr; FontForge compilation</p>
+        </footer>
+    </div>
+
+    <script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>

@@ -1,0 +1,54 @@
+# Python artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+.eggs/
+*.egg
+
+# Virtual environments
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Local runtime data (generated during font build)
+uploads/
+outputs/
+extracted_letters/
+*.ttf
+
+# Test / debug images & directories
+test_*.png
+test_*.ttf
+test_*.svg
+synthetic_*.png
+alpha_preview_*.png
+symbol_preview_*.png
+debug_extract/
+case_test/
+test_unicode_names/
+test_exact/
+test_extract/
+test_extract_verify/
+test_subprocess/
+test_uploaded/
+test_webapp_subprocess/
+final_preview.png
+font_preview.png
+
+# Environment
+.env

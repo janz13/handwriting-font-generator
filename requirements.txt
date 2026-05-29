@@ -1,0 +1,10 @@
+numpy
+opencv-python
+Pillow
+flask
+gunicorn
+
+# NOTE: fontforge is a *system* dependency and is NOT available on PyPI.
+#       Install it via your OS package manager, then its Python module
+#       becomes importable (e.g. python3-fontforge on Debian/Ubuntu).
+#       On Debian/Ubuntu: sudo apt-get install potrace fontforge python3-fontforge
