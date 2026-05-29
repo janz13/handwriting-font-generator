@@ -338,14 +338,24 @@ def api_combine():
     combined_id = f"{alpha_job}_{sym_job}_combined"
     combined_ttf = OUTPUT_FOLDER / f"{combined_id}.ttf"
 
-    # Merge via FontForge
+    # Merge via FontForge — probe for a Python that can import fontforge
     combine_script = Path(__file__).parent / "combine_fonts.py"
-    # Use current Python if fontforge is importable, else fall back to ffpython
-    try:
-        import fontforge  # noqa: F401
-        python_exe = sys.executable
-    except ImportError:
-        python_exe = FFPYTHON_EXE
+    python_exe = None
+    for candidate in [sys.executable, FFPYTHON_EXE, shutil.which("ffpython"), shutil.which("ffpython3"), "/usr/bin/python3"]:
+        if not candidate:
+            continue
+        probe = subprocess.run(
+            [candidate, "-c", "import fontforge; print('OK')"],
+            capture_output=True, text=True
+        )
+        if probe.returncode == 0 and "OK" in probe.stdout:
+            python_exe = candidate
+            break
+    if not python_exe:
+        return jsonify({
+            "success": False,
+            "error": "No Python interpreter with fontforge found. Please install FontForge / python3-fontforge.",
+        }), 500
 
     try:
         result = subprocess.run(

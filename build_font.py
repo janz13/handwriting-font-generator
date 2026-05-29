@@ -179,15 +179,27 @@ def _find_ffpython() -> str:
     )
 
 
+def _find_fontforge_python() -> str:
+    """Find a Python interpreter that can import fontforge."""
+    candidates = [sys.executable, shutil.which("ffpython"), shutil.which("ffpython3"), "/usr/bin/python3"]
+    for exe in candidates:
+        if not exe:
+            continue
+        result = subprocess.run(
+            [exe, "-c", "import fontforge; print('OK')"],
+            capture_output=True, text=True
+        )
+        if result.returncode == 0 and "OK" in result.stdout:
+            return exe
+    raise FileNotFoundError(
+        "No Python interpreter with fontforge module found. "
+        "Please install FontForge / python3-fontforge."
+    )
+
+
 def _delegate_to_ffpython(svg_dir: str, output_path: str, mode: str = "alphabet") -> None:
     """Invoke FontForge's Python to run fontforge_assemble.py."""
-    try:
-        ffpython = _find_ffpython()
-    except FileNotFoundError:
-        # Fallback: try the current Python interpreter directly
-        # (works in Docker where python3-fontforge is installed but
-        # no separate ffpython binary exists)
-        ffpython = sys.executable
+    ffpython = _find_fontforge_python()
     assemble_script = os.path.join(os.path.dirname(__file__), "fontforge_assemble.py")
     if not os.path.isfile(assemble_script):
         raise FileNotFoundError(
