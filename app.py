@@ -344,10 +344,13 @@ def api_combine():
     for candidate in [sys.executable, FFPYTHON_EXE, shutil.which("ffpython"), shutil.which("ffpython3"), "/usr/bin/python3"]:
         if not candidate:
             continue
-        probe = subprocess.run(
-            [candidate, "-c", "import fontforge; print('OK')"],
-            capture_output=True, text=True
-        )
+        try:
+            probe = subprocess.run(
+                [candidate, "-c", "import fontforge; print('OK')"],
+                capture_output=True, text=True
+            )
+        except FileNotFoundError:
+            continue  # candidate executable doesn't exist, try next
         if probe.returncode == 0 and "OK" in probe.stdout:
             python_exe = candidate
             break

@@ -185,10 +185,13 @@ def _find_fontforge_python() -> str:
     for exe in candidates:
         if not exe:
             continue
-        result = subprocess.run(
-            [exe, "-c", "import fontforge; print('OK')"],
-            capture_output=True, text=True
-        )
+        try:
+            result = subprocess.run(
+                [exe, "-c", "import fontforge; print('OK')"],
+                capture_output=True, text=True
+            )
+        except FileNotFoundError:
+            continue  # candidate executable doesn't exist, try next
         if result.returncode == 0 and "OK" in result.stdout:
             return exe
     raise FileNotFoundError(
