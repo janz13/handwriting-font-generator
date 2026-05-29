@@ -6,6 +6,7 @@ Font merge script — run with FontForge's bundled Python (ffpython).
 Copies glyphs from font2 into font1 (no overlapping glyphs expected).
 """
 import sys
+import traceback
 import fontforge
 
 
@@ -18,14 +19,16 @@ def merge_fonts(path1: str, path2: str, output_path: str) -> None:
     for glyph in font2.glyphs():
         if glyph.unicode == -1:
             continue  # skip .notdef and other unencoded glyphs
-        # Overwrite or create the glyph at the same codepoint in font1
-        target = font1.createChar(glyph.unicode)
-        target.clear()
-        # Duplicate the foreground layer (layer index 1)
-        target.layers[1] = glyph.layers[1].dup()
-        target.width = glyph.width
-        target.left_side_bearing = glyph.left_side_bearing
-        target.right_side_bearing = glyph.right_side_bearing
+        try:
+            source = font2[glyph.unicode]
+            target = font1.createChar(glyph.unicode)
+            target.clear()
+            # Use the foreground property (widely supported across versions)
+            target.foreground = source.foreground
+            target.width = source.width
+        except Exception as exc:
+            print(f"  [warn] Could not copy glyph U+{glyph.unicode:04X}: {exc}")
+            continue
 
     # Ensure space character exists
     if 0x0020 not in [g.unicode for g in font1.glyphs()]:
@@ -41,4 +44,8 @@ if __name__ == '__main__':
         print("Usage: ffpython.exe combine_fonts.py <font1.ttf> <font2.ttf> <output.ttf>")
         sys.exit(1)
 
-    merge_fonts(sys.argv[1], sys.argv[2], sys.argv[3])
+    try:
+        merge_fonts(sys.argv[1], sys.argv[2], sys.argv[3])
+    except Exception:
+        traceback.print_exc()
+        sys.exit(1)
