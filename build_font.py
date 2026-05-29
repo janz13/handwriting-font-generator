@@ -121,13 +121,24 @@ def png_to_svg(
             pass
 
 
-def _scale_and_position_glyph(glyph, reference_height=None) -> None:
+# Symbols that naturally sit at the midline (x-height)
+_MIDLINE_SYMBOLS = frozenset("-~+=")
+
+# Symbols / accents that naturally sit at cap-height
+_UPPER_SYMBOLS = frozenset("`^*'\"")
+
+
+def _scale_and_position_glyph(glyph, char=None, reference_height=None) -> None:
     """
     Uniformly scale the glyph so its height fits comfortably inside the em square,
     then shift it to sit on a reasonable baseline.
 
     If *reference_height* is provided, tiny glyphs are prevented from being
     blown up by capping the denominator at *reference_height*.
+
+    *char* is used to nudge upper / midline symbols to their natural height
+    so handwritten `~`, `-`, `*`, backtick, etc. don't end up hugging the
+    baseline when the user wrote them in the upper half of the cell.
     """
     bbox = glyph.boundingBox()
     height = bbox[3] - bbox[1]
@@ -144,9 +155,17 @@ def _scale_and_position_glyph(glyph, reference_height=None) -> None:
 
     # Recompute bbox after scaling
     bbox = glyph.boundingBox()
-    # Shift so the bottom sits slightly above the baseline (em * 0.15)
+
+    # Choose baseline offset based on character category
+    if char in _UPPER_SYMBOLS:
+        base_y = glyph.font.em * 0.45  # cap-height / accent position
+    elif char in _MIDLINE_SYMBOLS:
+        base_y = glyph.font.em * 0.30  # x-height / midline
+    else:
+        base_y = glyph.font.em * 0.15  # standard baseline
+
     x_shift = 50
-    y_shift = (glyph.font.em * 0.15) - bbox[1]
+    y_shift = base_y - bbox[1]
     glyph.transform((1, 0, 0, 1, x_shift, y_shift))
 
 
@@ -322,7 +341,7 @@ def build_ttf(
 
             # ---- Second pass: scale and set spacing consistently ----
             for char, glyph in glyph_map.items():
-                _scale_and_position_glyph(glyph, reference_height=reference_height)
+                _scale_and_position_glyph(glyph, char=char, reference_height=reference_height)
                 _set_glyph_spacing(glyph, left=30, right=30)
 
             # Add space character so words don't show missing-glyph boxes

@@ -40,11 +40,20 @@ def _get_mode_chars(mode: str):
     raise ValueError(f"Unknown mode: {mode}")
 
 
-def _scale_and_position_glyph(glyph, reference_height=None):
-    """Scale glyph to ~70 % of em square and place it above baseline.
+# Symbols that naturally sit at the midline (x-height)
+_MIDLINE_SYMBOLS = frozenset("-~+=")
+
+# Symbols / accents that naturally sit at cap-height
+_UPPER_SYMBOLS = frozenset("`^*'\"")
+
+
+def _scale_and_position_glyph(glyph, char=None, reference_height=None):
+    """Scale glyph to ~70 % of em square and place it at the right height.
 
     If *reference_height* is provided, tiny glyphs are prevented from being
     blown up by capping the denominator at *reference_height*.
+
+    *char* nudges upper / midline symbols so they don't hug the baseline.
     """
     bbox = glyph.boundingBox()
     height = bbox[3] - bbox[1]
@@ -57,8 +66,16 @@ def _scale_and_position_glyph(glyph, reference_height=None):
         scale = target_height / height
     glyph.transform((scale, 0, 0, scale, 0, 0))
     bbox = glyph.boundingBox()
+
+    if char in _UPPER_SYMBOLS:
+        base_y = glyph.font.em * 0.45
+    elif char in _MIDLINE_SYMBOLS:
+        base_y = glyph.font.em * 0.30
+    else:
+        base_y = glyph.font.em * 0.15
+
     x_shift = 50
-    y_shift = (glyph.font.em * 0.15) - bbox[1]
+    y_shift = base_y - bbox[1]
     glyph.transform((1, 0, 0, 1, x_shift, y_shift))
 
 
@@ -127,7 +144,7 @@ def build_ttf(svg_dir: str, output_path: str, mode: str = "alphabet"):
 
     # ---- Second pass: scale and set spacing consistently ----
     for char, glyph in glyph_map.items():
-        _scale_and_position_glyph(glyph, reference_height=reference_height)
+        _scale_and_position_glyph(glyph, char=char, reference_height=reference_height)
         _set_glyph_spacing(glyph, left=30, right=30)
 
     # Add space character so words don't show missing-glyph boxes
