@@ -1,12 +1,11 @@
 # Handwriting Font Generator — Production Docker Image
 # Uses Debian base with Python, potrace, and FontForge pre-installed
-FROM python:3.11-slim-bookworm
+FROM python:3.11-slim-bullseye
 
 # Install system dependencies
-RUN apt-get update && apt-get install -y --no-install-recommends \
+RUN apt-get update && apt-get install -y --no-install-recommends --fix-missing \
     potrace \
     fontforge \
-    libfontforge3 \
     python3-fontforge \
     libgl1-mesa-glx \
     libglib2.0-0 \
